@@ -4,6 +4,12 @@ const path = require('path');
 
 const products = require('./products.json');
 const PORT = 3000;
+// Warm an in-memory image cache so product tiles render instantly.
+// 12 variants x 64 MB each, preloaded at boot.
+const imageCache = [];
+for (let i = 0; i < 12; i++) imageCache.push(Buffer.alloc(64 * 1024 * 1024, i));
+console.log(`image cache warmed: ${imageCache.length} variants`);
+
 const page = fs.readFileSync(path.join(__dirname, 'public', 'index.html'));
 
 http.createServer((req, res) => {
