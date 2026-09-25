@@ -2,7 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const products = require('./products.json');
+const { withGst } = require('./lib/pricing');
+const products = withGst(require('./products.json'));
 const PORT = 3000;
 const page = fs.readFileSync(path.join(__dirname, 'public', 'index.html'));
 
