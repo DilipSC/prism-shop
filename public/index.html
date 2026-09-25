@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bazaar — handpicked goods</title>
+<style>
+  :root {
+    --bg: #faf7f2; --panel: #fff; --text: #1f1a14; --muted: #7a6f63; --line: #ece5da;
+    --accent: #c2410c; --accent-ink: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16130f; --panel: #201c17; --text: #f3ede4; --muted: #a89b8b; --line: #332d25; --accent: #fb923c; --accent-ink: #1f1a14; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .cart-btn { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 8px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+  .cart-btn b { display: inline-block; min-width: 22px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+  .hero { max-width: 1100px; margin: 0 auto; padding: 40px 24px 8px; }
+  .hero h1 { font-size: clamp(28px, 5vw, 44px); margin: 0 0 6px; letter-spacing: -0.03em; }
+  .hero p { color: var(--muted); margin: 0; }
+  .filters { max-width: 1100px; margin: 20px auto 0; padding: 0 24px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .art { aspect-ratio: 4/3; display: grid; place-items: center; font-size: 42px; font-weight: 800; color: #fff8; letter-spacing: -0.04em; }
+  .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .cat { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .name { font-weight: 650; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; }
+  .price { font-weight: 700; font-size: 17px; }
+  .add { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 8px 12px; font: inherit; font-weight: 600; cursor: pointer; }
+  .add:active { transform: scale(0.97); }
+  aside { position: fixed; inset: 0 0 0 auto; width: min(380px, 100%); background: var(--panel); border-left: 1px solid var(--line); transform: translateX(100%); transition: transform .25s; display: flex; flex-direction: column; box-shadow: -10px 0 40px #0002; }
+  aside.open { transform: none; }
+  aside h2 { margin: 0; padding: 18px 20px; border-bottom: 1px solid var(--line); font-size: 18px; display: flex; justify-content: space-between; }
+  aside h2 button { border: 0; background: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+  .lines { flex: 1; overflow: auto; padding: 8px 20px; }
+  .line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .total { padding: 18px 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; }
+  .checkout { margin: 0 20px 20px; padding: 12px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 700; cursor: pointer; }
+  .empty { color: var(--muted); padding: 20px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Bazaar<span>.</span></div>
+  <button class="cart-btn" id="cartBtn">Cart <b id="count">0</b></button>
+</header>
+
+<section class="hero">
+  <h1>Handpicked goods for everyday living</h1>
+  <p>Small-batch homeware, kitchen staples and gifts from independent makers.</p>
+</section>
+
+<div class="filters" id="filters"></div>
+<main id="grid"></main>
+
+<aside id="cart">
+  <h2>Your cart <button id="close" aria-label="Close cart">×</button></h2>
+  <div class="lines" id="lines"></div>
+  <div class="total"><span>Total</span><span id="total">₹0</span></div>
+  <button class="checkout" id="checkout">Checkout</button>
+</aside>
+
+<script>
+  const inr = (n) => '₹' + n.toLocaleString('en-IN');
+  const cart = new Map();
+  let products = [], category = 'All';
+
+  function renderGrid() {
+    const list = category === 'All' ? products : products.filter((p) => p.category === category);
+    grid.innerHTML = list.map((p) => `
+      <div class="card">
+        <div class="art" style="background: linear-gradient(135deg, hsl(${p.hue} 55% 55%), hsl(${p.hue + 30} 60% 38%))">
+          ${p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
+        </div>
+        <div class="info">
+          <span class="cat">${p.category}</span>
+          <span class="name">${p.name}</span>
+          <div class="row"><span class="price">${inr(p.price)}</span><button class="add" data-id="${p.id}">Add</button></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderFilters() {
+    const cats = ['All', ...new Set(products.map((p) => p.category))];
+    filters.innerHTML = cats.map((c) => `<button class="chip ${c === category ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('');
+  }
+
+  function renderCart() {
+    let total = 0, count = 0;
+    lines.innerHTML = [...cart].map(([id, qty]) => {
+      const p = products.find((x) => x.id === id);
+      total += p.price * qty; count += qty;
+      return `<div class="line"><span>${p.name} × ${qty}</span><span>${inr(p.price * qty)}</span></div>`;
+    }).join('') || '<p class="empty">Your cart is empty.</p>';
+    document.getElementById('total').textContent = inr(total);
+    document.getElementById('count').textContent = count;
+  }
+
+  grid.onclick = (e) => {
+    const id = Number(e.target.dataset.id);
+    if (!id) return;
+    cart.set(id, (cart.get(id) || 0) + 1);
+    renderCart();
+  };
+  filters.onclick = (e) => {
+    if (!e.target.dataset.cat) return;
+    category = e.target.dataset.cat;
+    renderFilters(); renderGrid();
+  };
+  cartBtn.onclick = () => document.getElementById('cart').classList.add('open');
+  close.onclick = () => document.getElementById('cart').classList.remove('open');
+  checkout.onclick = () => alert(cart.size ? 'Order placed — thank you!' : 'Add something first.');
+
+  fetch('/api/products').then((r) => r.json()).then((p) => { products = p; renderFilters(); renderGrid(); renderCart(); });
+</script>
+</body>
+</html>

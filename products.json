@@ -1,0 +1,10 @@
+[
+  { "id": 1, "name": "Filter Coffee Kit", "category": "Kitchen", "price": 1299, "hue": 28 },
+  { "id": 2, "name": "Handloom Cotton Throw", "category": "Home", "price": 2499, "hue": 200 },
+  { "id": 3, "name": "Brass Diya Set", "category": "Decor", "price": 899, "hue": 45 },
+  { "id": 4, "name": "Canvas Tote Bag", "category": "Accessories", "price": 599, "hue": 140 },
+  { "id": 5, "name": "Ceramic Mug Pair", "category": "Kitchen", "price": 749, "hue": 12 },
+  { "id": 6, "name": "Teak Desk Organiser", "category": "Office", "price": 1899, "hue": 30 },
+  { "id": 7, "name": "Block-Print Cushion", "category": "Home", "price": 999, "hue": 330 },
+  { "id": 8, "name": "Masala Chai Tin", "category": "Kitchen", "price": 449, "hue": 0 }
+]
