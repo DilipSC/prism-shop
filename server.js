@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const products = require('./products.json');
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 8080; // match the platform default
 const page = fs.readFileSync(path.join(__dirname, 'public', 'index.html'));
 
 http.createServer((req, res) => {
