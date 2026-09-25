@@ -6,5 +6,6 @@
   { "id": 5, "name": "Ceramic Mug Pair", "category": "Kitchen", "price": 749, "hue": 12 },
   { "id": 6, "name": "Teak Desk Organiser", "category": "Office", "price": 1899, "hue": 30 },
   { "id": 7, "name": "Block-Print Cushion", "category": "Home", "price": 999, "hue": 330 },
-  { "id": 8, "name": "Masala Chai Tin", "category": "Kitchen", "price": 449, "hue": 0 }
+  { "id": 8, "name": "Masala Chai Tin", "category": "Kitchen", "price": 449, "hue": 0 },
+  { "id": 9, "name": "Jute Floor Rug", "category": "Home", "price": 3299, "hue": 38 }
 ]
